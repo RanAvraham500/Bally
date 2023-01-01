@@ -52,36 +52,54 @@ public class Ball {
         gameOn = false;
     }
 
-    // What proportion of the velocity is retained on a bounce?  if 1.0, no energy
-    // is lost, and the ball will bounce infinitely.
-    private final float COEFFICIENT_OF_RESTITUTION = 0.8f;
+
     private class CalculatePosition extends TimerTask {
+        final float dt = 1;
+        final float COEFFICIENT_OF_REFLECTION = 0.5f;
+        final float COEFFICIENT_OF_AIR = 0.1f;
         @Override
         public void run() {
             //להתחשב ביחידות מידה
             //אם השינוי בתאוצה קטן מדי התאוצה לא משתנה
+
+            //לקחת רק את הספרה הראשונה אחרי הנקודה לתאוצה
+            //ax = (float)((int)(ax*10))/10;
+            //ay = (float)((int)(ay*10))/10;
+            if (ax > 0) {
+                ax -= COEFFICIENT_OF_AIR;
+            } else {
+                ax += COEFFICIENT_OF_AIR;
+            }
+            if (ay > 0) {
+                ay -= COEFFICIENT_OF_AIR;
+            } else {
+                ay += COEFFICIENT_OF_AIR;
+            }
+            ax /= 10;
+            ay /= 10;
+
             if (gameOn) {
-                float dt = TIME_CONSTANT/5f;
+                vx += dt*ax;
+                vy += dt*ay;
+                x += vx + 0.5*ax*Math.pow(dt, 2); //אורך
+                y += vy + 0.5*ay*Math.pow(dt, 2); //רוחב
 
-                x += vx*dt + 0.5*ax*Math.pow(dt, 2); //אורך
-                y += vy*dt + 0.5*ay*Math.pow(dt, 2); //רוחב
-
-                if (y > frameHeight-280) {
-                    y = frameHeight - 320;
-                    vy = -COEFFICIENT_OF_RESTITUTION * vy;
+                if (y > frameHeight - 290) {
+                    y = frameHeight - 280;
+                    vy = -COEFFICIENT_OF_REFLECTION * vy;
                 } else if (y < 0) {
                     y = 0;
-                    vy = -COEFFICIENT_OF_RESTITUTION * vy;
+                    vy = -COEFFICIENT_OF_REFLECTION * vy;
                 }
 
 
                 // Ball is out of bounds in x dimension
-                if (x > frameWidth-55) {
-                    x = frameWidth - 60;
-                    vx = -COEFFICIENT_OF_RESTITUTION * vx;
+                if (x > frameWidth - 60) {
+                    x = frameWidth - 59;
+                    vx = -COEFFICIENT_OF_REFLECTION * vx;
                 } else if (x < 0) {
                     x = 0;
-                    vx = -COEFFICIENT_OF_RESTITUTION * vx;
+                    vx = -COEFFICIENT_OF_REFLECTION * vx;
                 }
 
                 // ball is rolling along the bottom
